@@ -1,0 +1,22 @@
+name: Derle ve yayınla (Build & Release)
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Araçları kur (mono, nsis)
+        run: sudo apt-get update && sudo apt-get install -y mono-complete nsis unzip
+      - name: Derle
+        run: bash build.sh
+      - name: Releases'e yükle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.0 >/dev/null 2>&1 || gh release create v1.0 --title "SadeKayıt v1.0" --notes "Windows 10/11 için kurulum. İndir: SadeKayit_Kurulum.exe — Installer for Windows 10/11."
+          gh release upload v1.0 SadeKayit_Kurulum.exe --clobber
